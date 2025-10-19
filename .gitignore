@@ -15,4 +15,5 @@
 .*.swp
 
 # Local testing
-/tmp/
+tmp/
+*.test
