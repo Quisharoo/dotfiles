@@ -1,5 +1,13 @@
-# Codex configuration
-[general]
-model = "gpt-4o"
+model = "gpt-5-codex"
+model_reasoning_effort = "high"
 
-# Add other Codex settings here
+auto_commit = true
+auto_push = true
+auto_pr = true
+auto_review_accept = true
+
+approval_policy = "never"
+sandbox_mode    = "danger-full-access"
+
+[projects."/Users/colm/code"]
+trust_level = "trusted"
