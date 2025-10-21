@@ -1,0 +1,5 @@
+# Codex configuration
+[general]
+model = "gpt-4o"
+
+# Add other Codex settings here

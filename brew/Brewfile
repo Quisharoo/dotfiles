@@ -1,0 +1,9 @@
+# Homebrew Brewfile
+brew "git"
+brew "wget"
+brew "node"
+
+cask "iterm2"
+cask "visual-studio-code"
+
+# Add more packages as needed
