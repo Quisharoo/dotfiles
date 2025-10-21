@@ -95,3 +95,8 @@ if [ -d "$DOTFILES_DIR/prefs/iterm2" ]; then
 fi
 
 info "Bootstrap complete."
+# Configure global .gitignore on first run
+if ! git config --global --get core.excludesfile >/dev/null; then
+  cp -n "$HOME/.dotfiles/templates/gitignore_global" "$HOME/.gitignore_global" 2>/dev/null || true
+  git config --global core.excludesfile "$HOME/.gitignore_global"
+fi

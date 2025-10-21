@@ -68,7 +68,7 @@ if [ -d "$ZPLUG_HOME" ]; then
   zplug "mafredri/zsh-async", from:github
 
   # Minimalistic "pure" prompt
-  zplug "pure-prompt/pure", use:pure.zsh, from:github, as:theme
+  # (disabled) &
 
   # Bonus plugins from the article
   zplug "zsh-users/zsh-syntax-highlighting", from:github, as:plugin, defer:2
@@ -106,3 +106,5 @@ if [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; 
   source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 export FPATH="/usr/local/share/zsh/site-functions:$FPATH"
+
+autoload -U promptinit; promptinit; prompt pure
