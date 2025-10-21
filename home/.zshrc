@@ -68,7 +68,7 @@ if [ -d "$ZPLUG_HOME" ]; then
   zplug "mafredri/zsh-async", from:github
 
   # Minimalistic "pure" prompt
-  zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+  zplug "pure-prompt/pure", use:pure.zsh, from:github, as:theme
 
   # Bonus plugins from the article
   zplug "zsh-users/zsh-syntax-highlighting", from:github, as:plugin, defer:2
@@ -96,17 +96,7 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 # bun completions
 [ -s "/Users/colm/.bun/_bun" ] && source "/Users/colm/.bun/_bun"
 
-# Homebrew plugin sourcing with guards
-if command -v brew >/dev/null 2>&1; then
-  BREW_PREFIX="$(brew --prefix)"
-  AUTOSUG="$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-  HILITE="$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-  [ -f "$AUTOSUG" ] && ! typeset -f _zsh_autosuggest_start >/dev/null && source "$AUTOSUG"
-  [ -f "$HILITE" ] && ! typeset -f _zsh_highlight >/dev/null && source "$HILITE"
-fi
 
-export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
-export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
 
 # zsh plugins (Intel Homebrew paths)
 if [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
