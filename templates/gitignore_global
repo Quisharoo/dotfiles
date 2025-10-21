@@ -1,0 +1,49 @@
+# OS/editor
+.DS_Store
+*.swp
+*.swo
+*.tmp
+Thumbs.db
+
+# Shell caches
+.zcompdump*
+.zsh_history
+.history/
+
+# Secrets and env
+.env
+.env.*
+
+# Editors/IDEs (state, not settings)
+.vscode/
+.cursor/
+.idea/
+*.code-workspace
+
+# AI/dev tools (state)
+.codex/auth.json
+.codex/history.jsonl
+.codex/log/
+.codex/sessions/
+.open-webui/
+.ollama/
+.deepchat/
+.n8n/
+
+# Builds/caches
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+coverage/
+*.log
+
+# Backups/temp
+*.bak
+*.tmp
+*~
+*.old
+*.orig
