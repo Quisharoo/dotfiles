@@ -1,3 +1,9 @@
+# VS Code shell integration
+if [ -n "$VSCODE_SHELL_INTEGRATION" ]; then
+  source "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
+fi
+
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/Users/colm/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
