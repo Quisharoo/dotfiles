@@ -108,3 +108,4 @@ fi
 export FPATH="/usr/local/share/zsh/site-functions:$FPATH"
 
 autoload -U promptinit; promptinit; prompt pure
+eval "$(argc --completion zsh)"
