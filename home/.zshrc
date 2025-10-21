@@ -103,6 +103,16 @@ if command -v brew >/dev/null 2>&1; then
   HILITE="$BREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
   [ -f "$AUTOSUG" ] && ! typeset -f _zsh_autosuggest_start >/dev/null && source "$AUTOSUG"
   [ -f "$HILITE" ] && ! typeset -f _zsh_highlight >/dev/null && source "$HILITE"
-  export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR="$BREW_PREFIX/share/zsh-syntax-highlighting/highlighters"
 fi
 
+export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
+export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:$PATH
+
+# zsh plugins (Intel Homebrew paths)
+if [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+  source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+if [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+export FPATH="/usr/local/share/zsh/site-functions:$FPATH"
