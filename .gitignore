@@ -37,3 +37,12 @@ secrets/
 
 # Homebrew cache
 ~/Library/Caches/Homebrew/
+# Codex secrets/state
+home/.codex/auth.json
+home/.codex/history.jsonl
+home/.codex/log/
+home/.codex/sessions/
+
+# Repo-wide dumps and exports
+repomix-output.xml
+*.itermexport
