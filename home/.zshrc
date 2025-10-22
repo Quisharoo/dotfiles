@@ -39,11 +39,17 @@ fi
 # Node Version Manager (NVM) initialization — lazy-loaded to speed shell startup
 export NVM_DIR="$HOME/.nvm"
 if [ -s "$NVM_DIR/nvm.sh" ]; then
+  # Helper that sources nvm.sh once and then removes itself
+  _nvm_lazy_load() {
+    unset -f _nvm_lazy_load
+    # shellcheck source=/dev/null
+    source "$NVM_DIR/nvm.sh"
+  }
+
   # lazy-load nvm on first use
   nvm() {
     unset -f nvm
-    # shellcheck source=/dev/null
-    source "$NVM_DIR/nvm.sh"
+    _nvm_lazy_load
     nvm "$@"
   }
 
@@ -51,14 +57,12 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
   if ! command -v node >/dev/null 2>&1; then
     node() {
       unset -f node
-      # shellcheck source=/dev/null
-      source "$NVM_DIR/nvm.sh"
+      _nvm_lazy_load
       command node "$@"
     }
     npm() {
       unset -f npm
-      # shellcheck source=/dev/null
-      source "$NVM_DIR/nvm.sh"
+      _nvm_lazy_load
       command npm "$@"
     }
   fi
@@ -141,8 +145,9 @@ fi
 
 # If a previous run detected missing plugins, show a quiet one-time hint (then remove marker)
 if [ -f "$HOME/.cache/zplug-missing" ] && [ -t 1 ]; then
-  echo "zplug: some plugins are missing. Run 'zplug install' to install them (this message is shown once)."
+  # Remove marker first to avoid multiple concurrent shells printing the message
   rm -f "$HOME/.cache/zplug-missing" 2>/dev/null || true
+  echo "zplug: some plugins are missing. Run 'zplug install' to install them. (Shown once until plugins are installed.)"
 fi
 
 # Optional: helper to open Snazzy iTerm2 colors (run once manually)
