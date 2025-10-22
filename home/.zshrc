@@ -36,7 +36,6 @@ if [ -d "$HOME/anaconda3" ] || [ -d "$HOME/miniconda3" ]; then
   fi
 fi
 
-# Node Version Manager (NVM) initialization
 # Node Version Manager (NVM) initialization — lazy-loaded to speed shell startup
 export NVM_DIR="$HOME/.nvm"
 if [ -s "$NVM_DIR/nvm.sh" ]; then
