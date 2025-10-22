@@ -3,29 +3,54 @@ if [ -n "$VSCODE_SHELL_INTEGRATION" ]; then
   source "/Applications/Visual Studio Code.app/Contents/Resources/app/out/vs/workbench/contrib/terminal/common/scripts/shellIntegration-rc.zsh"
 fi
 
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/colm/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/Users/colm/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/colm/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/colm/anaconda3/bin:$PATH"
-    fi
+# If this is not an interactive shell, stop early to avoid slow init in scripts
+if [[ $- != *i* ]]; then
+  return
 fi
-unset __conda_setup
-# <<< conda initialize <<<
+
+# Lazy-load conda on first use to keep interactive shells fast.
+# This preserves conda functionality but delays sourcing the heavy init
+# until the `conda` command is actually invoked.
+if [ -d "$HOME/anaconda3" ] || [ -d "$HOME/miniconda3" ]; then
+  _conda_init_path=""
+  if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
+    _conda_init_path="$HOME/anaconda3/etc/profile.d/conda.sh"
+  elif [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+    _conda_init_path="$HOME/miniconda3/etc/profile.d/conda.sh"
+  fi
+
+  if [ -n "$_conda_init_path" ]; then
+    conda() {
+      # remove this function and source the real conda initialization
+      unset -f conda
+      source "$_conda_init_path"
+      # forward all arguments to the real conda
+      conda "$@"
+    }
+  else
+    # Fallback: if conda is on PATH, leave it alone; otherwise no-op
+    if ! command -v conda >/dev/null 2>&1; then
+      # no conda available; do nothing
+      :
+    fi
+  fi
+fi
 
 # Node Version Manager (NVM) initialization
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 # Editor environment
-export EDITOR="code -w"
-export VISUAL="code -w"
+## make code CLI path portable (prefer system which, fallback to existing path)
+if command -v code >/dev/null 2>&1; then
+  export EDITOR="code -w"
+  export VISUAL="code -w"
+  code_cmd=$(command -v code)
+else
+  export EDITOR="code -w"
+  export VISUAL="code -w"
+  code_cmd="/usr/local/bin/code"
+fi
 
 export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
 
@@ -37,28 +62,31 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 alias vim='code'
 alias vi='code'
 alias nano='code'
-alias code="/usr/local/bin/code"         # Official VS Code CLI
-alias cursor="/usr/local/bin/cursor"     # Cursor CLI
+# Prefer the discovered code CLI when available so this works across machines
+alias code="$code_cmd"
+alias cursor="$(command -v cursor 2>/dev/null || echo /usr/local/bin/cursor)"     # Cursor CLI
 alias cursorapp="open -a Cursor"         # Cursor as macOS GUI app
 
-# 'thefuck' utility alias
-eval $(thefuck --alias)
+# 'thefuck' utility alias (only enable if installed)
+if command -v thefuck >/dev/null 2>&1; then
+  eval "$(thefuck --alias)"
+fi
 
 # >>> oh-my-zsh begin >>>
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
-plugins=(git)
-
-# Disable OMZ theme so "pure" can control the prompt (addition)
+# Let "pure" / prompt manager control the prompt — leave ZSH_THEME empty
 ZSH_THEME=""
+plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
 # <<< oh-my-zsh end <<<
 
 ########## Additions for "Beautify your iTerm2 and prompt" ##########
-# zplug (plugin manager used by the guide) - load if installed
+## zplug (plugin manager used by the guide) - load if installed
 if command -v brew >/dev/null 2>&1; then
-  export ZPLUG_HOME="$(brew --prefix)/opt/zplug"
+  # prefer Apple Silicon prefix, fall back to Intel
+  HOMEBREW_PREFIX=$(brew --prefix)
+  export ZPLUG_HOME="$HOMEBREW_PREFIX/opt/zplug"
 fi
 
 if [ -d "$ZPLUG_HOME" ]; then
@@ -98,14 +126,46 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 
 
-# zsh plugins (Intel Homebrew paths)
-if [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+# zsh plugins (Homebrew paths — include Apple Silicon prefix)
+if [ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+elif [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
   source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
-if [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+if [ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+elif [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
   source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
-export FPATH="/usr/local/share/zsh/site-functions:$FPATH"
+export FPATH="/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:$FPATH"
+
+
+### BEGIN: enhanced autocomplete setup
+
+# Initialise completions
+autoload -U compinit && compinit
+
+# Fuzzy and case-insensitive matching
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}' 'r:|[._-]=**' 'l:|=* r:|=*'
+zstyle ':completion:*' completer _complete _approximate
+zstyle ':completion:*:approximate:*' max-errors 2 numeric
+
+# Tab-cycling behaviour
+setopt AUTO_MENU
+setopt MENU_COMPLETE
+setopt LIST_AMBIGUOUS
+bindkey '^I' expand-or-complete
+
+# Typo correction
+setopt CORRECT
+setopt CORRECT_ALL
+
+# Extra completions (Homebrew)
+if [ -d "$(brew --prefix)/share/zsh-completions" ]; then
+  fpath+=("$(brew --prefix)/share/zsh-completions")
+fi
+
+### END: enhanced autocomplete setup
+
 
 autoload -U promptinit; promptinit; prompt pure
-eval "$(argc --completion zsh)"
