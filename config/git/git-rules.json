@@ -1,0 +1,37 @@
+{
+  "name": "Protect main/master - PRs only, no direct commits",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/main", "refs/heads/master"]
+    }
+  },
+  "rules": [
+    {
+      "type": "restrict_updates",
+      "parameters": {}
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": true,
+        "required_review_thread_resolution": true,
+        "require_last_push_approval": false,
+        "require_code_owner_review": false,
+        "allowed_merge_methods": ["merge", "squash", "rebase"]
+      }
+    },
+    {
+      "type": "push_restrictions",
+      "parameters": {
+        "users": ["<your-github-username>"],
+        "teams": []
+      }
+    }
+  ]
+}
