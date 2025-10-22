@@ -1,4 +1,3 @@
-. "$HOME/.cargo/env"
 # Source Cargo env if present (guarded)
 if [ -f "$HOME/.cargo/env" ]; then
 	# shellcheck source=/dev/null
