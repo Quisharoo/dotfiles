@@ -1,0 +1,14 @@
+{
+  "name": "Protect main - PRs only",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": { "ref_name": { "include": ["refs/heads/main", "refs/heads/master"] } },
+  "rules": [
+    { "type": "pull_request", "parameters": {
+      "required_approving_review_count": 1,
+      "required_review_thread_resolution": true,
+      "dismiss_stale_reviews_on_push": true
+    }},
+    { "type": "non_fast_forward" }
+  ]
+}
