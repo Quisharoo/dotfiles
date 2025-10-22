@@ -37,8 +37,33 @@ if [ -d "$HOME/anaconda3" ] || [ -d "$HOME/miniconda3" ]; then
 fi
 
 # Node Version Manager (NVM) initialization
+# Node Version Manager (NVM) initialization — lazy-loaded to speed shell startup
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  # lazy-load nvm on first use
+  nvm() {
+    unset -f nvm
+    # shellcheck source=/dev/null
+    source "$NVM_DIR/nvm.sh"
+    nvm "$@"
+  }
+
+  # If node isn't already available, lazy-load when node/npm are invoked
+  if ! command -v node >/dev/null 2>&1; then
+    node() {
+      unset -f node
+      # shellcheck source=/dev/null
+      source "$NVM_DIR/nvm.sh"
+      command node "$@"
+    }
+    npm() {
+      unset -f npm
+      # shellcheck source=/dev/null
+      source "$NVM_DIR/nvm.sh"
+      command npm "$@"
+    }
+  fi
+fi
 
 # Editor environment
 ## make code CLI path portable (prefer system which, fallback to existing path)
@@ -102,16 +127,23 @@ if [ -d "$ZPLUG_HOME" ]; then
   zplug "zsh-users/zsh-syntax-highlighting", from:github, as:plugin, defer:2
   zplug "zsh-users/zsh-autosuggestions",     from:github, as:plugin, defer:2
 
-  # Install on first run (interactive shells)
-  if ! zplug check --verbose; then
-    if [ -t 1 ]; then
-      printf "zplug: install plugins? [y/N]: "
-      read -r -q && echo && zplug install
-    fi
+  # If plugins are missing, record a marker so the user can install later.
+  # We intentionally do NOT auto-install here to avoid noisy background job output.
+  if ! zplug check >/dev/null 2>&1; then
+    mkdir -p "$HOME/.cache" 2>/dev/null || true
+    touch "$HOME/.cache/zplug-missing" 2>/dev/null || true
+  else
+    rm -f "$HOME/.cache/zplug-missing" 2>/dev/null || true
   fi
 
-  # Activate
+  # Activate plugins synchronously so interactive features are available immediately
   zplug load
+fi
+
+# If a previous run detected missing plugins, show a quiet one-time hint (then remove marker)
+if [ -f "$HOME/.cache/zplug-missing" ] && [ -t 1 ]; then
+  echo "zplug: some plugins are missing. Run 'zplug install' to install them (this message is shown once)."
+  rm -f "$HOME/.cache/zplug-missing" 2>/dev/null || true
 fi
 
 # Optional: helper to open Snazzy iTerm2 colors (run once manually)
@@ -142,8 +174,14 @@ export FPATH="/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-f
 
 ### BEGIN: enhanced autocomplete setup
 
-# Initialise completions
-autoload -U compinit && compinit
+# Initialise completions with caching (faster startup)
+autoload -U compinit
+# Use compinit's cache file to avoid expensive rechecks; fall back to normal compinit
+if [[ -w ${ZDOTDIR:-$HOME} ]]; then
+  compinit -C
+else
+  compinit
+fi
 
 # Fuzzy and case-insensitive matching
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}' 'r:|[._-]=**' 'l:|=* r:|=*'
