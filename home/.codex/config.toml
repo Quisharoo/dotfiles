@@ -1,13 +1,53 @@
+# ~/.codex/config.toml
+
 model = "gpt-5-codex"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
+model_reasoning_summary = "concise"
+model_max_output_tokens = 2000
+model_verbosity = "medium"
 
 auto_commit = true
-auto_push = true
-auto_pr = true
-auto_review_accept = true
-
+auto_push   = true
+auto_pr     = true
+auto_review_accept = false
 approval_policy = "never"
-sandbox_mode    = "danger-full-access"
+sandbox_mode    = "workspace-write"
+
+[shell_environment_policy]
+inherit = "core"
+exclude = ["*KEY*", "*TOKEN*", "*SECRET*"]
+include_only = ["PATH", "HOME", "SHELL"]
+set = { TZ = "Europe/Dublin" }
+
+[tools]
+web_search = true                 # enable native web search
+
+[history]
+persistence = "save-all"          # keep Codex history
+
+[tui]
+notifications = true
+
+file_opener = "cursor"
 
 [projects."/Users/colm/code"]
 trust_level = "trusted"
+include = ["**/*.md","**/*.txt","**/*.json","**/*.yaml","**/*.yml","**/*.ts","**/*.tsx","**/*.js"]
+exclude = ["**/node_modules/**","**/dist/**","**/.next/**","**/build/**",".git/**"]
+
+
+# --- MCP servers (local-only, high leverage) ---
+
+[mcp_servers.git]
+command = "/Users/colm/.npm-global/bin/git-mcp-server"
+enabled = true
+startup_timeout_sec = 5
+tool_timeout_sec = 120
+env = { GIT_PAGER = "cat", GIT_TERMINAL_PROMPT = "0" }
+
+[mcp_servers.fs]
+command = "/Users/colm/.npm-global/bin/filesystem-mcp-server"
+enabled = true
+startup_timeout_sec = 5
+tool_timeout_sec = 120
+env = { FS_MCP_ROOT = "/Users/colm/code" }
