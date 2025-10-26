@@ -112,3 +112,4 @@ if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
 elif [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
   . "$HOME/miniconda3/etc/profile.d/conda.sh"
 fi
+export NPM_CONFIG_PREFIX="$HOME/.npm-global"

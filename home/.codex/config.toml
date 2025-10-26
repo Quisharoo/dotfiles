@@ -31,4 +31,4 @@ file_opener = "vscode"
 [projects."/Users/colm/code"]
 trust_level = "trusted"
 include = ["**/*.md","**/*.txt","**/*.json","**/*.yaml","**/*.yml","**/*.ts","**/*.tsx","**/*.js"]
-exclude = ["**/node_modules/**","**/dist/**","**/.next/**","**/build/**",".git/**"]
+exclude = ["**/.cache/**","**/node_modules/**","**/dist/**","**/.next/**","**/build/**",".git/**"]
