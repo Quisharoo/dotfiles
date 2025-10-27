@@ -86,7 +86,7 @@ fi
 export ZSH="$HOME/.oh-my-zsh"
 # Keep oh-my-zsh theme disabled because Pure handles the prompt
 ZSH_THEME=""
-plugins=(git)
+plugins=(git colored-man-pages colorize pip python brew macos)
 
 if [ -d "$ZSH" ]; then
   source "$ZSH/oh-my-zsh.sh"

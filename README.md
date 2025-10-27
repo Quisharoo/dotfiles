@@ -3,12 +3,13 @@
 Personal macOS dotfiles, bootstrap script, and app preferences.
 
 ## Repository Layout
-- `brew/`: Homebrew formulas, casks, and extensions
+- `brew/`: Homebrew formulas, casks, and VS Code extensions
 - `home/`: files symlinked into `$HOME` (shell configs, git settings, Claude prefs)
 - `prefs/`: macOS application preferences (Cursor, iTerm2, etc.)
 - `config/`: misc tool configs (e.g. git attributes)
 - `scripts/`: bootstrap and helper scripts
 - `templates/`: templates such as `gitignore_global`
+- `docs/`: additional documentation (`docs/secrets.md`, `docs/inspirations.md`)
 
 ## Quick Start
 ### Prerequisites
@@ -33,18 +34,18 @@ Personal macOS dotfiles, bootstrap script, and app preferences.
 
 ### Brewfile Notes
 - Sections are grouped by purpose (CLI essentials, developer tooling, shell enhancements, AI utilities).
-- Commented hints mark optional installs such as `git-quick-stats`; feel free to remove lines you do not need before running `brew bundle`.
+- Commented hints mark optional installs such as `git-quick-stats`; remove lines you do not need before running `brew bundle`.
 - Re-run `brew bundle check --file=brew/Brewfile` periodically to catch missing formulae or taps.
 
 ### Secrets & Sensitive Files
 - `secrets/`, Codex runtime data (tokens, auth, sessions), and Claude cache files are ignored by git.
-- Claude workspace preferences live in `home/.claude/settings.json` so they sync across machines; keep other Claude outputs local.
+- Claude workspace preferences live in `home/.claude/CLAUDE.md` and `home/.claude/settings.json` so they sync across machines; keep other Claude outputs local.
 - Keep API keys, tokens, and private keys out of the repo; use `secrets/` or your preferred secret manager.
 - If sensitive files were committed previously, rotate the credentials and run `git filter-repo --path secrets/<file>` (or BFG) to scrub history.
-- Optional encryption: consider `git-crypt` or `age` + `sops` for sharing secret files; document key distribution in `CONTRIBUTING.md` if adopted. See `docs/secrets.md` for workflow details and history cleanup commands.
+- Optional encryption: consider `git-crypt` or `age` + `sops` for sharing secret files; document key distribution in `CONTRIBUTING.md` if adopted. See `docs/secrets.md` for workflow details and cleanup commands.
 
 ### Host-Specific Overrides & Apple Silicon
-- Drop per-machine exports into `home/.zsh/env.d/*.zsh`; they load after the shared config.
+- Drop per-machine exports into `home/.zsh/env.d/*.zsh`; they load after the shared config (see `host-example.zsh`).
 - Homebrew paths prefer `brew --prefix`, so `/opt/homebrew` (Apple Silicon) is automatic with `/usr/local` as fallback.
 - Node shells use `fnm` when available and fall back to the bundled `node@22`, eliminating manual version toggles.
 
@@ -58,6 +59,6 @@ Personal macOS dotfiles, bootstrap script, and app preferences.
 
 ## Maintenance Tips
 - Keep aliases and shell customizations modular in `home/.zsh/*.zsh`.
-- Document meaningful changes in a future CHANGELOG to track upgrades.
+- Update `CONTRIBUTING.md` when you add new processes or tooling expectations.
 - After updating ignore rules, double-check `git status` to ensure no secrets are tracked.
-- Install `oh-my-zsh` and (optionally) `zplug`; the prompt uses Pure via zplug, but the rest of the shell still relies on oh-my-zsh.
+- Install `oh-my-zsh` and (optionally) `zplug`; the prompt uses Pure via zplug, but oh-my-zsh still manages core plugins.
