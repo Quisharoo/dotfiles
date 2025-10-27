@@ -119,7 +119,7 @@ if [ -d "$ZPLUG_HOME" ]; then
     mkdir -p "$HOME/.cache" 2>/dev/null || true
     touch "$HOME/.cache/zplug-missing" 2>/dev/null || true
   else
-    rm -f "$HOME/.cache/zplug-missing" 2>/dev/null || true
+    /bin/rm -f "$HOME/.cache/zplug-missing" 2>/dev/null || true
   fi
 
   zplug load
@@ -130,7 +130,7 @@ fi
 # If a previous run detected missing plugins, show a quiet one-time hint (then remove marker)
 if [ -f "$HOME/.cache/zplug-missing" ] && [ -t 1 ]; then
   # Remove marker first to avoid multiple concurrent shells printing the message
-  rm -f "$HOME/.cache/zplug-missing" 2>/dev/null || true
+  /bin/rm -f "$HOME/.cache/zplug-missing" 2>/dev/null || true
   echo "zplug: some plugins are missing. Run 'zplug install' to install them. (Shown once until plugins are installed.)"
 fi
 
