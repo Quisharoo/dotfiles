@@ -55,3 +55,4 @@ brew/**/Brewfile.lock.json
 repomix-output.xml
 *.itermexport
 
+.claude/
