@@ -36,37 +36,16 @@ if [ -d "$HOME/anaconda3" ] || [ -d "$HOME/miniconda3" ]; then
   fi
 fi
 
-# Node Version Manager (NVM) initialization — lazy-loaded to speed shell startup
-export NVM_DIR="$HOME/.nvm"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  # Helper that sources nvm.sh once and then removes itself
-  _nvm_lazy_load() {
-    unset -f _nvm_lazy_load
-    # shellcheck source=/dev/null
-    source "$NVM_DIR/nvm.sh"
-  }
-
-  # lazy-load nvm on first use
-  nvm() {
-    unset -f nvm
-    _nvm_lazy_load
-    nvm "$@"
-  }
-
-  # If node isn't already available, lazy-load when node/npm are invoked
-  if ! command -v node >/dev/null 2>&1; then
-    node() {
-      unset -f node
-      _nvm_lazy_load
-      command node "$@"
-    }
-    npm() {
-      unset -f npm
-      _nvm_lazy_load
-      command npm "$@"
-    }
-  fi
+# --- Node versioning (fnm) ---
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --use-on-cd --version-file-strategy recursive --shell zsh)"
+else
+  export PATH="/opt/homebrew/opt/node@22/bin:$PATH"
 fi
+
+export NPM_CONFIG_PREFIX="$HOME/.npm-global"
+export PATH="$HOME/.npm-global/bin:$PATH"
+
 
 # Editor environment
 ## make code CLI path portable (prefer system which, fallback to existing path)
@@ -86,52 +65,56 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 
-# Editor aliases
-alias vim='code'
-alias vi='code'
-alias nano='code'
-# Prefer the discovered code CLI when available so this works across machines
-alias code="$code_cmd"
-alias cursor="$(command -v cursor 2>/dev/null || echo /usr/local/bin/cursor)"     # Cursor CLI
-alias cursorapp="open -a Cursor"         # Cursor as macOS GUI app
+# Editor aliases live in ~/.zsh/aliases.zsh to keep this file slim
+ALIASES_FILE="$HOME/.zsh/aliases.zsh"
+[ -f "$ALIASES_FILE" ] && source "$ALIASES_FILE"
+
+# Host- / project-specific environment overrides in ~/.zsh/env.d/*.zsh
+if [ -d "$HOME/.zsh/env.d" ]; then
+  for env_file in "$HOME/.zsh/env.d"/*.zsh; do
+    [ -f "$env_file" ] || continue
+    source "$env_file"
+  done
+fi
 
 # 'thefuck' utility alias (only enable if installed)
 if command -v thefuck >/dev/null 2>&1; then
   eval "$(thefuck --alias)"
 fi
 
-# >>> oh-my-zsh begin >>>
+# --- oh-my-zsh + plugins ---
 export ZSH="$HOME/.oh-my-zsh"
-# Let "pure" / prompt manager control the prompt — leave ZSH_THEME empty
+# Keep oh-my-zsh theme disabled because Pure handles the prompt
 ZSH_THEME=""
-plugins=(git)
+plugins=(git colored-man-pages colorize pip python brew macos)
 
-source $ZSH/oh-my-zsh.sh
-# <<< oh-my-zsh end <<<
+if [ -d "$ZSH" ]; then
+  source "$ZSH/oh-my-zsh.sh"
+else
+  echo "oh-my-zsh not found at $ZSH" >&2
+fi
 
-########## Additions for "Beautify your iTerm2 and prompt" ##########
-## zplug (plugin manager used by the guide) - load if installed
+# --- zplug (for Pure + extra plugins) ---
 if command -v brew >/dev/null 2>&1; then
-  # prefer Apple Silicon prefix, fall back to Intel
   HOMEBREW_PREFIX=$(brew --prefix)
   export ZPLUG_HOME="$HOMEBREW_PREFIX/opt/zplug"
 fi
+export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 
 if [ -d "$ZPLUG_HOME" ]; then
   source "$ZPLUG_HOME/init.zsh"
 
-  # Async helper required by pure
   zplug "mafredri/zsh-async", from:github
+  zplug "sindresorhus/pure", from:github, use:pure.zsh, as:theme
 
-  # Minimalistic "pure" prompt
-  # (disabled) &
+  # Only load syntax highlighting/autosuggestions via zplug if oh-my-zsh plugin is inactive
+  if ! [[ " ${plugins[*]} " == *" zsh-syntax-highlighting "* ]]; then
+    zplug "zsh-users/zsh-syntax-highlighting", from:github, as:plugin, defer:2
+  fi
+  if ! [[ " ${plugins[*]} " == *" zsh-autosuggestions "* ]]; then
+    zplug "zsh-users/zsh-autosuggestions",     from:github, as:plugin, defer:2
+  fi
 
-  # Bonus plugins from the article
-  zplug "zsh-users/zsh-syntax-highlighting", from:github, as:plugin, defer:2
-  zplug "zsh-users/zsh-autosuggestions",     from:github, as:plugin, defer:2
-
-  # If plugins are missing, record a marker so the user can install later.
-  # We intentionally do NOT auto-install here to avoid noisy background job output.
   if ! zplug check >/dev/null 2>&1; then
     mkdir -p "$HOME/.cache" 2>/dev/null || true
     touch "$HOME/.cache/zplug-missing" 2>/dev/null || true
@@ -139,8 +122,9 @@ if [ -d "$ZPLUG_HOME" ]; then
     rm -f "$HOME/.cache/zplug-missing" 2>/dev/null || true
   fi
 
-  # Activate plugins synchronously so interactive features are available immediately
   zplug load
+else
+  echo "zplug not detected; skipping plugin load." >&2
 fi
 
 # If a previous run detected missing plugins, show a quiet one-time hint (then remove marker)
@@ -151,7 +135,7 @@ if [ -f "$HOME/.cache/zplug-missing" ] && [ -t 1 ]; then
 fi
 
 # Optional: helper to open Snazzy iTerm2 colors (run once manually)
-alias iterm-snazzy='(curl -Ls https://raw.githubusercontent.com/sindresorhus/iterm2-snazzy/main/Snazzy.itermcolors > /tmp/Snazzy.itermcolors && open /tmp/Snazzy.itermcolors)'
+# (moved to ~/.zsh/aliases.zsh)
 #####################################################################
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
@@ -160,20 +144,6 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 # bun completions
 [ -s "/Users/colm/.bun/_bun" ] && source "/Users/colm/.bun/_bun"
 
-
-
-# zsh plugins (Homebrew paths — include Apple Silicon prefix)
-if [ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-  source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-elif [ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-  source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-fi
-if [ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-  source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-elif [ -f /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-  source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-export FPATH="/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:$FPATH"
 
 
 ### BEGIN: enhanced autocomplete setup
@@ -210,4 +180,7 @@ fi
 ### END: enhanced autocomplete setup
 
 
-autoload -U promptinit; promptinit; prompt pure
+autoload -U promptinit; promptinit; prompt pure  # Pure handled via zplug
+source <(fzf --zsh)
+# Use fd for faster file listings in fzf (requires fd to be installed)
+export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix"

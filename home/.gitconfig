@@ -4,14 +4,28 @@
 
 [core]
   editor = code -w
-	excludesfile = /Users/colm/.gitignore_global
+	excludesfile = ~/.gitignore_global
 
 [init]
   defaultBranch = main
 
 [alias]
-  st = status
-  co = checkout
-  br = branch
-  ci = commit
-  lg = log --oneline --graph --decorate --all
+	st = status
+	co = checkout
+	br = branch
+	ci = commit
+	lg = log --oneline --graph --decorate --all
+	caa = commit --amend --no-edit
+	unstage = reset HEAD --
+	amend = commit --amend --no-edit
+	undo = reset --soft HEAD~1
+	staged = diff --cached
+	graph = log --graph --decorate --oneline --all
+	last = log -1 HEAD
+[commit]
+	template = ~/.gitmessage
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

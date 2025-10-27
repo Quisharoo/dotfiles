@@ -1,9 +1,51 @@
-# Homebrew Brewfile
-brew "git"
-brew "wget"
-brew "node"
+tap "jetpackduba/apps"
+tap "stripe/stripe-cli"
+# CLI essentials
+brew "coreutils"
+brew "fd"
+brew "ripgrep"
+brew "jq"
+brew "yq"
+brew "htop"
+brew "tree"
 
-cask "iterm2"
-cask "visual-studio-code"
+# Developer tooling
+brew "argc"              # CLI scaffolding helper
+brew "gh"
+brew "git-extras"
+brew "git-quick-stats"   # optional git analytics
+brew "go"
+brew "node@22"
 
-# Add more packages as needed
+# Shell & prompt enhancements
+brew "fzf"
+brew "zplug"
+brew "zsh-async"
+brew "pure"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+
+# LLM / AI utilities
+brew "gemini-cli"
+brew "ollama"
+
+# Misc tooling
+brew "stripe/stripe-cli/stripe"
+# OpenAI's coding agent that runs in your terminal
+cask "codex"
+cask "font-fira-code-nerd-font"
+# FOSS multiplatform git client
+cask "gitnuro"
+vscode "esbenp.prettier-vscode"
+vscode "github.copilot"
+vscode "github.copilot-chat"
+vscode "mcright.auto-save"
+vscode "ms-dotnettools.vscode-dotnet-runtime"
+vscode "ms-edgedevtools.vscode-edge-devtools"
+vscode "ms-python.debugpy"
+vscode "ms-python.python"
+vscode "ms-python.vscode-pylance"
+vscode "ms-python.vscode-python-envs"
+vscode "openai.chatgpt"
+vscode "ritwickdey.liveserver"
+vscode "stripe.vscode-stripe"

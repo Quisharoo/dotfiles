@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+shopt -s nullglob
 
 # Idempotent bootstrap script for dotfiles
 # - Symlink files from home/ into $HOME
@@ -10,9 +11,29 @@ set -euo pipefail
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HOME_DIR="$HOME"
 TIMESTAMP=$(date +%Y%m%d%H%M%S)
+DRY_RUN=false
 
 info() { printf "[INFO] %s\n" "$*"; }
+warn() { printf "[WARN] %s\n" "$*"; }
 error() { printf "[ERROR] %s\n" "$*" >&2; }
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [--dry-run|-n] [--help|-h]
+
+Options:
+  --dry-run, -n   Show actions without modifying the filesystem
+  --help,   -h    Display this help message
+EOF
+}
+
+maybe_run() {
+  if [ "$DRY_RUN" = true ]; then
+    info "[dry-run] $*"
+  else
+    "$@"
+  fi
+}
 
 link_file() {
   local src="$1" dst="$2"
@@ -24,19 +45,66 @@ link_file() {
         return 0
       else
         info "Updating symlink: $dst (was $(readlink "$dst"))"
-        rm "$dst"
+        maybe_run rm "$dst"
       fi
     else
       # not a symlink; back it up
       local backup="$dst.$TIMESTAMP.bak"
       info "Backing up existing file: $dst -> $backup"
-      mv "$dst" "$backup"
+      maybe_run mv "$dst" "$backup"
     fi
   fi
 
-  ln -s "$src" "$dst"
+  maybe_run ln -s "$src" "$dst"
   info "Linked: $dst -> $src"
 }
+
+ensure_prereqs() {
+  local platform
+  platform=$(uname -s)
+  if [ "$platform" != "Darwin" ]; then
+    error "Unsupported platform: $platform. This bootstrap currently targets macOS."
+    exit 1
+  fi
+
+  for cmd in git; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      error "Missing required dependency: $cmd"
+      exit 1
+    fi
+  done
+
+  if ! command -v brew >/dev/null 2>&1; then
+    warn "Homebrew not found. Installation of optional packages will be skipped."
+  fi
+}
+
+# Parse CLI arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run|-n)
+      DRY_RUN=true
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      error "Unknown option: $1"
+      usage
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+if [ "$DRY_RUN" = true ]; then
+  info "Dry run enabled: filesystem changes will be skipped."
+fi
+
+ensure_prereqs
+
+CURSOR_TARGET="${CURSOR_USER_DIR:-$HOME_DIR/Library/Application Support/Cursor/User}"
 
 # Symlink everything in home/ to $HOME
 info "Symlinking home/ -> $HOME_DIR"
@@ -56,7 +124,7 @@ for path in "$DOTFILES_DIR"/home/.* "$DOTFILES_DIR"/home/*; do
 
   # create parent dir if needed
   dst_dir=$(dirname "$dst")
-  mkdir -p "$dst_dir"
+  maybe_run mkdir -p "$dst_dir"
 
   link_file "$src" "$dst"
 done
@@ -64,7 +132,7 @@ done
 # Link config/* into ~/.config/*
 if [ -d "$DOTFILES_DIR/config" ]; then
   info "Linking config/ -> $HOME_DIR/.config/"
-  mkdir -p "$HOME_DIR/.config"
+  maybe_run mkdir -p "$HOME_DIR/.config"
   for cfg in "$DOTFILES_DIR"/config/*; do
     [ -e "$cfg" ] || continue
     name=$(basename "$cfg")
@@ -75,10 +143,9 @@ if [ -d "$DOTFILES_DIR/config" ]; then
 fi
 
 # Link Cursor prefs
-CURSOR_TARGET="$HOME_DIR/Library/Application Support/Cursor/User"
 if [ -d "$DOTFILES_DIR/prefs/cursor/User" ]; then
   info "Linking prefs/cursor/User -> $CURSOR_TARGET"
-  mkdir -p "$CURSOR_TARGET"
+  maybe_run mkdir -p "$CURSOR_TARGET"
   for f in "$DOTFILES_DIR"/prefs/cursor/User/*; do
     [ -e "$f" ] || continue
     name=$(basename "$f")
@@ -94,9 +161,27 @@ if [ -d "$DOTFILES_DIR/prefs/iterm2" ]; then
   info "To load them, open iTerm2 > Preferences > General > Preferences and set 'Load preferences from a custom folder' to: $DOTFILES_DIR/prefs/iterm2"
 fi
 
+# Offer to install Homebrew bundle
+BUNDLE_FILE="$DOTFILES_DIR/brew/Brewfile"
+if command -v brew >/dev/null 2>&1 && [ -f "$BUNDLE_FILE" ]; then
+  if [ "$DRY_RUN" = true ]; then
+    info "Dry run: skipping brew bundle (brew bundle --file=\"$BUNDLE_FILE\")"
+  elif [ -t 0 ]; then
+    printf "Run 'brew bundle --file=%s'? [y/N] " "$BUNDLE_FILE"
+    read -r reply
+    if [[ "$reply" =~ ^[Yy]$ ]]; then
+      brew bundle --file="$BUNDLE_FILE"
+    else
+      info "Skipped brew bundle."
+    fi
+  else
+    warn "Non-interactive session detected; skipping brew bundle."
+  fi
+fi
+
 info "Bootstrap complete."
 # Configure global .gitignore on first run
 if ! git config --global --get core.excludesfile >/dev/null; then
-  cp -n "$HOME/.dotfiles/templates/gitignore_global" "$HOME/.gitignore_global" 2>/dev/null || true
-  git config --global core.excludesfile "$HOME/.gitignore_global"
+  maybe_run cp -n "$DOTFILES_DIR/templates/gitignore_global" "$HOME/.gitignore_global"
+  maybe_run git config --global core.excludesfile "$HOME/.gitignore_global"
 fi
