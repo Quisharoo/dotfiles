@@ -1,40 +1,35 @@
 tap "jetpackduba/apps"
 tap "stripe/stripe-cli"
-# Easily create and use cli based on bash script
-brew "argc"
-# GNU File, Shell, and Text utilities
+# CLI essentials
 brew "coreutils"
-# Simple, fast and user-friendly alternative to find
 brew "fd"
-# Command-line fuzzy finder written in Go
-brew "fzf"
-# Interact with Google Gemini AI models from the command-line
-brew "gemini-cli"
-# GitHub command-line tool
-brew "gh"
-# Small git utilities
-brew "git-extras"
-# Simple and efficient way to access statistics in git
-brew "git-quick-stats"
-# Open source programming language to build simple/reliable/efficient software
-brew "go"
-# Platform built on V8 to build network applications
-brew "node@22"
-# Create, run, and share large language models (LLMs)
-brew "ollama"
-# Perform tasks asynchronously without external tools
-brew "zsh-async"
-# Pretty, minimal and fast ZSH prompt
-brew "pure"
-# Search tool like grep and The Silver Searcher
 brew "ripgrep"
-# Next-generation plugin manager for zsh
+brew "jq"
+brew "yq"
+brew "htop"
+brew "tree"
+
+# Developer tooling
+brew "argc"              # CLI scaffolding helper
+brew "gh"
+brew "git-extras"
+brew "git-quick-stats"   # optional git analytics
+brew "go"
+brew "node@22"
+
+# Shell & prompt enhancements
+brew "fzf"
 brew "zplug"
-# Fish-like fast/unobtrusive autosuggestions for zsh
+brew "zsh-async"
+brew "pure"
 brew "zsh-autosuggestions"
-# Fish shell like syntax highlighting for zsh
 brew "zsh-syntax-highlighting"
-# Stripe CLI utility
+
+# LLM / AI utilities
+brew "gemini-cli"
+brew "ollama"
+
+# Misc tooling
 brew "stripe/stripe-cli/stripe"
 # OpenAI's coding agent that runs in your terminal
 cask "codex"
