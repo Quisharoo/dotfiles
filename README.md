@@ -31,11 +31,17 @@ Personal macOS dotfiles, bootstrap script, and app preferences.
 3. When prompted, symlinked files will replace existing ones after creating timestamped backups.
 4. The script offers to run `brew bundle --file=brew/Brewfile`; accept to install CLI tools, casks, and VS Code extensions in one go.
 
+### Brewfile Notes
+- Sections are grouped by purpose (CLI essentials, developer tooling, shell enhancements, AI utilities).
+- Commented hints mark optional installs such as `git-quick-stats`; feel free to remove lines you do not need before running `brew bundle`.
+- Re-run `brew bundle check --file=brew/Brewfile` periodically to catch missing formulae or taps.
+
 ### Secrets & Sensitive Files
 - `secrets/`, Codex runtime data (tokens, auth, sessions), and Claude cache files are ignored by git.
 - Claude workspace preferences live in `home/.claude/settings.json` so they sync across machines; keep other Claude outputs local.
 - Keep API keys, tokens, and private keys out of the repo; use `secrets/` or your preferred secret manager.
-- If sensitive files were committed previously, rotate the credentials and `git filter-repo` (or similar) to purge history.
+- If sensitive files were committed previously, rotate the credentials and run `git filter-repo --path secrets/<file>` (or BFG) to scrub history.
+- Optional encryption: consider `git-crypt` or `age` + `sops` for sharing secret files; document key distribution in `CONTRIBUTING.md` if adopted. See `docs/secrets.md` for workflow details and history cleanup commands.
 
 ### Host-Specific Overrides & Apple Silicon
 - Drop per-machine exports into `home/.zsh/env.d/*.zsh`; they load after the shared config.

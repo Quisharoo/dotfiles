@@ -19,7 +19,7 @@ Thanks for keeping these dotfiles tidy! Follow the guidelines below to avoid sur
 
 ## Secrets & Security
 - Never commit credentials—`secrets/` and runtime Codex/Claude artifacts are ignored by default.
-- If something sensitive slips into history, rotate it immediately and run `git filter-repo` (see README notes).
+- If something sensitive slips into history, rotate it immediately and run `git filter-repo` (see `docs/secrets.md`).
 - Use optional tools like `git-crypt` or `age` if you need to store encrypted secrets; document usage when adding.
 
 ## Release Hygiene
