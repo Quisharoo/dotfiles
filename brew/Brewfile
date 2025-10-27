@@ -1,9 +1,56 @@
-# Homebrew Brewfile
-brew "git"
-brew "wget"
-brew "node"
-
-cask "iterm2"
-cask "visual-studio-code"
-
-# Add more packages as needed
+tap "jetpackduba/apps"
+tap "stripe/stripe-cli"
+# Easily create and use cli based on bash script
+brew "argc"
+# GNU File, Shell, and Text utilities
+brew "coreutils"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# Interact with Google Gemini AI models from the command-line
+brew "gemini-cli"
+# GitHub command-line tool
+brew "gh"
+# Small git utilities
+brew "git-extras"
+# Simple and efficient way to access statistics in git
+brew "git-quick-stats"
+# Open source programming language to build simple/reliable/efficient software
+brew "go"
+# Platform built on V8 to build network applications
+brew "node@22"
+# Create, run, and share large language models (LLMs)
+brew "ollama"
+# Perform tasks asynchronously without external tools
+brew "zsh-async"
+# Pretty, minimal and fast ZSH prompt
+brew "pure"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# Next-generation plugin manager for zsh
+brew "zplug"
+# Fish-like fast/unobtrusive autosuggestions for zsh
+brew "zsh-autosuggestions"
+# Fish shell like syntax highlighting for zsh
+brew "zsh-syntax-highlighting"
+# Stripe CLI utility
+brew "stripe/stripe-cli/stripe"
+# OpenAI's coding agent that runs in your terminal
+cask "codex"
+cask "font-fira-code-nerd-font"
+# FOSS multiplatform git client
+cask "gitnuro"
+vscode "esbenp.prettier-vscode"
+vscode "github.copilot"
+vscode "github.copilot-chat"
+vscode "mcright.auto-save"
+vscode "ms-dotnettools.vscode-dotnet-runtime"
+vscode "ms-edgedevtools.vscode-edge-devtools"
+vscode "ms-python.debugpy"
+vscode "ms-python.python"
+vscode "ms-python.vscode-pylance"
+vscode "ms-python.vscode-python-envs"
+vscode "openai.chatgpt"
+vscode "ritwickdey.liveserver"
+vscode "stripe.vscode-stripe"

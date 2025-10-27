@@ -1,6 +1,6 @@
 # ~/.codex/config.toml
 model = "gpt-5-codex"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 model_max_output_tokens = 2000
 model_verbosity = "medium"
 
