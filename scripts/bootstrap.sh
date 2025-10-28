@@ -169,11 +169,21 @@ if [ -d "$DOTFILES_DIR/prefs/vscode/User" ]; then
   done
 fi
 
-# Link Claude settings
-if [ -f "$DOTFILES_DIR/prefs/claude/settings.json" ]; then
-  info "Linking prefs/claude/settings.json -> $HOME_DIR/.claude/settings.json"
+# Generate and link Claude settings from template
+if [ -f "$DOTFILES_DIR/prefs/claude/settings.json.template" ]; then
+  info "Generating Claude settings from template..."
   maybe_run mkdir -p "$HOME_DIR/.claude"
-  link_file "$DOTFILES_DIR/prefs/claude/settings.json" "$HOME_DIR/.claude/settings.json"
+
+  # Generate settings.json from template with actual paths
+  CLAUDE_SETTINGS="$HOME_DIR/.claude/settings.json"
+  if [ "$DRY_RUN" = true ]; then
+    info "[dry-run] Would generate $CLAUDE_SETTINGS from template"
+  else
+    sed -e "s|{{HOME}}|$HOME_DIR|g" \
+        -e "s|{{DOTFILES_DIR}}|$DOTFILES_DIR|g" \
+        "$DOTFILES_DIR/prefs/claude/settings.json.template" > "$CLAUDE_SETTINGS"
+    info "Generated: $CLAUDE_SETTINGS"
+  fi
 fi
 
 # Inform about iTerm2 preferences location
@@ -182,21 +192,32 @@ if [ -d "$DOTFILES_DIR/prefs/iterm2" ]; then
   info "To load them, open iTerm2 > Preferences > General > Preferences and set 'Load preferences from a custom folder' to: $DOTFILES_DIR/prefs/iterm2"
 fi
 
-# Offer to install Homebrew bundle
+# Auto-install Homebrew bundle
 BUNDLE_FILE="$DOTFILES_DIR/brew/Brewfile"
 if command -v brew >/dev/null 2>&1 && [ -f "$BUNDLE_FILE" ]; then
   if [ "$DRY_RUN" = true ]; then
     info "Dry run: skipping brew bundle (brew bundle --file=\"$BUNDLE_FILE\")"
-  elif [ -t 0 ]; then
-    printf "Run 'brew bundle --file=%s'? [y/N] " "$BUNDLE_FILE"
-    read -r reply
-    if [[ "$reply" =~ ^[Yy]$ ]]; then
-      brew bundle --file="$BUNDLE_FILE"
-    else
-      info "Skipped brew bundle."
-    fi
   else
-    warn "Non-interactive session detected; skipping brew bundle."
+    info "Installing Homebrew packages from Brewfile..."
+    brew bundle --file="$BUNDLE_FILE" || warn "Some brew packages failed to install, continuing anyway..."
+  fi
+fi
+
+# Auto-install oh-my-zsh if missing
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  if [ "$DRY_RUN" = true ]; then
+    info "Dry run: would install oh-my-zsh"
+  else
+    info "Installing oh-my-zsh..."
+    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || warn "oh-my-zsh installation failed, continuing anyway..."
+  fi
+fi
+
+# zplug should be installed via Brewfile, but verify
+if command -v brew >/dev/null 2>&1; then
+  ZPLUG_HOME="$(brew --prefix)/opt/zplug"
+  if [ ! -d "$ZPLUG_HOME" ]; then
+    info "zplug not found. It should be installed via 'brew bundle' above."
   fi
 fi
 
