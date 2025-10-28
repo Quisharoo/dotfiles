@@ -8,6 +8,11 @@ if [[ $- != *i* ]]; then
   return
 fi
 
+# Cache brew --prefix to avoid expensive repeated calls
+if command -v brew >/dev/null 2>&1; then
+  export HOMEBREW_PREFIX=$(brew --prefix)
+fi
+
 # Lazy-load conda on first use to keep interactive shells fast.
 # This preserves conda functionality but delays sourcing the heavy init
 # until the `conda` command is actually invoked.
@@ -37,6 +42,7 @@ if [ -d "$HOME/anaconda3" ] || [ -d "$HOME/miniconda3" ]; then
 fi
 
 # --- Node versioning (fnm) ---
+# Note: NOT lazy-loaded because --use-on-cd needs to hook into directory changes
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --use-on-cd --version-file-strategy recursive --shell zsh)"
 else
@@ -77,14 +83,18 @@ if [ -d "$HOME/.zsh/env.d" ]; then
   done
 fi
 
-# 'thefuck' utility alias (only enable if installed)
+# 'thefuck' utility alias - lazy-loaded on first use
 if command -v thefuck >/dev/null 2>&1; then
-  eval "$(thefuck --alias)"
+  fuck() {
+    unset -f fuck
+    eval "$(thefuck --alias)"
+    fuck "$@"
+  }
 fi
 
 # --- oh-my-zsh + plugins ---
 export ZSH="$HOME/.oh-my-zsh"
-# Keep oh-my-zsh theme disabled because Pure handles the prompt
+# Keep oh-my-zsh theme disabled because Starship handles the prompt
 ZSH_THEME=""
 plugins=(git colored-man-pages colorize pip python brew macos)
 
@@ -94,12 +104,12 @@ else
   echo "oh-my-zsh not found at $ZSH" >&2
 fi
 
-# --- zplug (for Pure + extra plugins) ---
-if command -v brew >/dev/null 2>&1; then
-  HOMEBREW_PREFIX=$(brew --prefix)
+# --- zplug (for extra plugins) ---
+if [ -n "$HOMEBREW_PREFIX" ]; then
   export ZPLUG_HOME="$HOMEBREW_PREFIX/opt/zplug"
+else
+  export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 fi
-export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 
 if [ -d "$ZPLUG_HOME" ]; then
   source "$ZPLUG_HOME/init.zsh"
@@ -170,8 +180,8 @@ setopt CORRECT
 setopt CORRECT_ALL
 
 # Extra completions (Homebrew)
-if [ -d "$(brew --prefix)/share/zsh-completions" ]; then
-  fpath+=("$(brew --prefix)/share/zsh-completions")
+if [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/share/zsh-completions" ]; then
+  fpath+=("$HOMEBREW_PREFIX/share/zsh-completions")
 fi
 
 ### END: enhanced autocomplete setup

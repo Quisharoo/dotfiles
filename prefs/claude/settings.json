@@ -26,6 +26,9 @@
       "Edit(//Users/colm/.zshrc)",
       "Write(//Users/colm/.zshrc)",
       "Read(//Users/colm/.zshrc)",
+      "Edit(//Users/colm/code/dotfiles/home/.zshrc)",
+      "Write(//Users/colm/code/dotfiles/home/.zshrc)",
+      "Read(//Users/colm/code/dotfiles/home/.zshrc)",
       "Bash(source ~/.zshrc)"
     ],
     "ask": [
