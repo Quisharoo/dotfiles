@@ -104,9 +104,6 @@ export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 if [ -d "$ZPLUG_HOME" ]; then
   source "$ZPLUG_HOME/init.zsh"
 
-  zplug "mafredri/zsh-async", from:github
-  zplug "sindresorhus/pure", from:github, use:pure.zsh, as:theme
-
   # Only load syntax highlighting/autosuggestions via zplug if oh-my-zsh plugin is inactive
   if ! [[ " ${plugins[*]} " == *" zsh-syntax-highlighting "* ]]; then
     zplug "zsh-users/zsh-syntax-highlighting", from:github, as:plugin, defer:2
@@ -180,13 +177,9 @@ fi
 ### END: enhanced autocomplete setup
 
 
-# Prompt setup: prefer Starship, fall back to Pure if unavailable
+# Prompt setup: Starship
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
-else
-  autoload -U promptinit
-  promptinit
-  prompt pure  # Pure handled via zplug
 fi
 source <(fzf --zsh)
 # Use fd for faster file listings in fzf (requires fd to be installed)

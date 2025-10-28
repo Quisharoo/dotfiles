@@ -105,6 +105,7 @@ fi
 ensure_prereqs
 
 CURSOR_TARGET="${CURSOR_USER_DIR:-$HOME_DIR/Library/Application Support/Cursor/User}"
+VSCODE_TARGET="${VSCODE_USER_DIR:-$HOME_DIR/Library/Application Support/Code/User}"
 
 # Symlink everything in home/ to $HOME
 info "Symlinking home/ -> $HOME_DIR"
@@ -151,6 +152,19 @@ if [ -d "$DOTFILES_DIR/prefs/cursor/User" ]; then
     name=$(basename "$f")
     src="$f"
     dst="$CURSOR_TARGET/$name"
+    link_file "$src" "$dst"
+  done
+fi
+
+# Link VSCode prefs
+if [ -d "$DOTFILES_DIR/prefs/vscode/User" ]; then
+  info "Linking prefs/vscode/User -> $VSCODE_TARGET"
+  maybe_run mkdir -p "$VSCODE_TARGET"
+  for f in "$DOTFILES_DIR"/prefs/vscode/User/*; do
+    [ -e "$f" ] || continue
+    name=$(basename "$f")
+    src="$f"
+    dst="$VSCODE_TARGET/$name"
     link_file "$src" "$dst"
   done
 fi
