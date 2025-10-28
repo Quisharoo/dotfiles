@@ -180,7 +180,14 @@ fi
 ### END: enhanced autocomplete setup
 
 
-autoload -U promptinit; promptinit; prompt pure  # Pure handled via zplug
+# Prompt setup: prefer Starship, fall back to Pure if unavailable
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+else
+  autoload -U promptinit
+  promptinit
+  prompt pure  # Pure handled via zplug
+fi
 source <(fzf --zsh)
 # Use fd for faster file listings in fzf (requires fd to be installed)
 export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix"
