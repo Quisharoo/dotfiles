@@ -19,9 +19,8 @@ brew "node@22"
 
 # Shell & prompt enhancements
 brew "fzf"
+brew "starship"
 brew "zplug"
-brew "zsh-async"
-brew "pure"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 

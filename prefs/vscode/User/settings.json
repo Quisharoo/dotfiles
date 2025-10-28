@@ -8,6 +8,7 @@
   "git.autofetch": true,
   "github.copilot.nextEditSuggestions.enabled": true,
   "chat.tools.terminal.autoApprove": {
+    "source ~/.zshrc": true,
     "npm install express": true,
     "npm run dev": true,
     "npm install": true,

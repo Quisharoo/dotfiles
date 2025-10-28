@@ -169,6 +169,13 @@ if [ -d "$DOTFILES_DIR/prefs/vscode/User" ]; then
   done
 fi
 
+# Link Claude settings
+if [ -f "$DOTFILES_DIR/prefs/claude/settings.json" ]; then
+  info "Linking prefs/claude/settings.json -> $HOME_DIR/.claude/settings.json"
+  maybe_run mkdir -p "$HOME_DIR/.claude"
+  link_file "$DOTFILES_DIR/prefs/claude/settings.json" "$HOME_DIR/.claude/settings.json"
+fi
+
 # Inform about iTerm2 preferences location
 if [ -d "$DOTFILES_DIR/prefs/iterm2" ]; then
   info "iTerm2 prefs available in: $DOTFILES_DIR/prefs/iterm2"
