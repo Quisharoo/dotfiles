@@ -23,12 +23,12 @@
       "Bash(mkdir:*)",
       "Bash(cp:*)",
       "Bash(mv:*)",
-      "Edit(/{{HOME}}/.zshrc)",
-      "Write(/{{HOME}}/.zshrc)",
-      "Read(/{{HOME}}/.zshrc)",
-      "Edit(/{{DOTFILES_DIR}}/home/.zshrc)",
-      "Write(/{{DOTFILES_DIR}}/home/.zshrc)",
-      "Read(/{{DOTFILES_DIR}}/home/.zshrc)",
+      "Edit({{HOME}}/.zshrc)",
+      "Write({{HOME}}/.zshrc)",
+      "Read({{HOME}}/.zshrc)",
+      "Edit({{DOTFILES_DIR}}/home/.zshrc)",
+      "Write({{DOTFILES_DIR}}/home/.zshrc)",
+      "Read({{DOTFILES_DIR}}/home/.zshrc)",
       "Bash(source ~/.zshrc)"
     ],
     "ask": [

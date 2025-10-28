@@ -149,7 +149,7 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 
 # bun completions
-[ -s "/Users/colm/.bun/_bun" ] && source "/Users/colm/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 
 
