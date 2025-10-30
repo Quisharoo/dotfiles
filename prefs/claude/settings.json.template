@@ -18,11 +18,29 @@
       "Bash(sed:*)",
       "Bash(awk:*)",
       "Bash(grep:*)",
+      "Bash(rg:*)",
       "Bash(find:*)",
+      "Bash(xargs:*)",
+      "Bash(| *:*)",
       "Bash(touch:*)",
       "Bash(mkdir:*)",
       "Bash(cp:*)",
       "Bash(mv:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(pwd:*)",
+      "Bash(cd:*)",
+      "Bash(which:*)",
+      "Bash(test:*)",
+      "Bash(echo:*)",
+      "Bash(type:*)",
+      "Bash(dirname:*)",
+      "Bash(basename:*)",
+      "Bash(./*:*)",
+      "Bash(gh:*)",
+      "Bash(go list -m all | grep clipboard:*)",
       "Edit({{HOME}}/.zshrc)",
       "Write({{HOME}}/.zshrc)",
       "Read({{HOME}}/.zshrc)",
@@ -57,7 +75,16 @@
     "deny": ["/**", "~/**"]
   },
   "webfetch": {
-    "allow": ["registry.npmjs.org", "api.github.com", "raw.githubusercontent.com", "github.com"],
+    "allow": [
+      "registry.npmjs.org",
+      "api.github.com",
+      "raw.githubusercontent.com",
+      "github.com",
+      "docs.claude.com",
+      "npmjs.com",
+      "npmjs.org",
+      "*.github.com"
+    ],
     "deny": ["169.254.169.254"]
   }
 }

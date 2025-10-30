@@ -6,6 +6,7 @@
   "terminal.integrated.sendKeybindingsToShell": true,
   "terminal.integrated.fontFamily": "FiraCode Nerd Font Mono",
   "terminal.integrated.fontSize": 13,
+  "terminal.integrated.defaultProfile.osx": "zsh",
   "git.confirmSync": false,
   "git.autofetch": true,
   "github.copilot.nextEditSuggestions.enabled": true,
@@ -53,5 +54,5 @@
   "chat.agent.maxRequests": 50,
   "diffEditor.experimental.showMoves": true,
   "diffEditor.renderSideBySide": false,
-  "claudeCode.selectedModel": "haiku"
+  "claudeCode.selectedModel": "default"
 }
