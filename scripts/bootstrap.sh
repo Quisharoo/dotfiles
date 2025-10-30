@@ -115,6 +115,10 @@ for path in "$DOTFILES_DIR"/home/.* "$DOTFILES_DIR"/home/*; do
   if [ "$base" = "." ] || [ "$base" = ".." ]; then
     continue
   fi
+  # skip directories handled specially later
+  if [ "$base" = ".config" ] || [ "$base" = ".claude" ]; then
+    continue
+  fi
   src="$path"
   dst="$HOME_DIR/$base"
 
@@ -172,6 +176,10 @@ fi
 # Generate and link Claude settings from template
 if [ -f "$DOTFILES_DIR/prefs/claude/settings.json.template" ]; then
   info "Generating Claude settings from template..."
+  if [ -L "$HOME_DIR/.claude" ] && [ "$(readlink "$HOME_DIR/.claude")" = "$DOTFILES_DIR/home/.claude" ]; then
+    info "Removing legacy .claude symlink into repository"
+    maybe_run rm "$HOME_DIR/.claude"
+  fi
   maybe_run mkdir -p "$HOME_DIR/.claude"
 
   # Generate settings.json from template with actual paths
@@ -204,12 +212,12 @@ if command -v brew >/dev/null 2>&1 && [ -f "$BUNDLE_FILE" ]; then
 fi
 
 # Auto-install oh-my-zsh if missing
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
+if [ ! -d "$HOME_DIR/.oh-my-zsh" ]; then
   if [ "$DRY_RUN" = true ]; then
     info "Dry run: would install oh-my-zsh"
   else
     info "Installing oh-my-zsh..."
-    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || warn "oh-my-zsh installation failed, continuing anyway..."
+    KEEP_ZSHRC=yes RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || warn "oh-my-zsh installation failed, continuing anyway..."
   fi
 fi
 
@@ -224,6 +232,6 @@ fi
 info "Bootstrap complete."
 # Configure global .gitignore on first run
 if ! git config --global --get core.excludesfile >/dev/null; then
-  maybe_run cp -n "$DOTFILES_DIR/templates/gitignore_global" "$HOME/.gitignore_global"
-  maybe_run git config --global core.excludesfile "$HOME/.gitignore_global"
+  maybe_run cp -n "$DOTFILES_DIR/templates/gitignore_global" "$HOME_DIR/.gitignore_global"
+  maybe_run git config --global core.excludesfile "$HOME_DIR/.gitignore_global"
 fi
