@@ -8,6 +8,11 @@ if [[ $- != *i* ]]; then
   return
 fi
 
+# Cache brew --prefix to avoid expensive repeated calls
+if command -v brew >/dev/null 2>&1; then
+  export HOMEBREW_PREFIX=$(brew --prefix)
+fi
+
 # Lazy-load conda on first use to keep interactive shells fast.
 # This preserves conda functionality but delays sourcing the heavy init
 # until the `conda` command is actually invoked.
@@ -37,6 +42,7 @@ if [ -d "$HOME/anaconda3" ] || [ -d "$HOME/miniconda3" ]; then
 fi
 
 # --- Node versioning (fnm) ---
+# Note: NOT lazy-loaded because --use-on-cd needs to hook into directory changes
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --use-on-cd --version-file-strategy recursive --shell zsh)"
 else
@@ -77,15 +83,25 @@ if [ -d "$HOME/.zsh/env.d" ]; then
   done
 fi
 
-# 'thefuck' utility alias (only enable if installed)
+# 'thefuck' utility alias - lazy-loaded on first use
 if command -v thefuck >/dev/null 2>&1; then
-  eval "$(thefuck --alias)"
+  fuck() {
+    unset -f fuck
+    eval "$(thefuck --alias)"
+    fuck "$@"
+  }
 fi
 
 # --- oh-my-zsh + plugins ---
 export ZSH="$HOME/.oh-my-zsh"
-# Keep oh-my-zsh theme disabled because Pure handles the prompt
+# Keep oh-my-zsh theme disabled because Starship handles the prompt
 ZSH_THEME=""
+
+# Oh-my-zsh enhancements
+# Auto-update oh-my-zsh without prompting
+zstyle ':omz:update' mode auto
+zstyle ':omz:update' frequency 7
+
 plugins=(git colored-man-pages colorize pip python brew macos)
 
 if [ -d "$ZSH" ]; then
@@ -94,18 +110,43 @@ else
   echo "oh-my-zsh not found at $ZSH" >&2
 fi
 
-# --- zplug (for Pure + extra plugins) ---
-if command -v brew >/dev/null 2>&1; then
-  HOMEBREW_PREFIX=$(brew --prefix)
+# --- Oh-my-zsh utility functions ---
+# Universal archive extractor
+extract() {
+  if [ -f "$1" ]; then
+    case "$1" in
+      *.tar.bz2)   tar xjf "$1"   ;;
+      *.tar.gz)    tar xzf "$1"   ;;
+      *.bz2)       bunzip2 "$1"   ;;
+      *.rar)       unrar x "$1"   ;;
+      *.gz)        gunzip "$1"    ;;
+      *.tar)       tar xf "$1"    ;;
+      *.tbz2)      tar xjf "$1"   ;;
+      *.tgz)       tar xzf "$1"   ;;
+      *.zip)       unzip "$1"     ;;
+      *.Z)         uncompress "$1";;
+      *.7z)        7z x "$1"      ;;
+      *)           echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+# Make directory and cd into it
+mkcd() {
+  mkdir -p "$@" && cd "$_"
+}
+
+# --- zplug (for extra plugins) ---
+if [ -n "$HOMEBREW_PREFIX" ]; then
   export ZPLUG_HOME="$HOMEBREW_PREFIX/opt/zplug"
+else
+  export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 fi
-export ZPLUG_HOME="${ZPLUG_HOME:-$HOME/.zplug}"
 
 if [ -d "$ZPLUG_HOME" ]; then
   source "$ZPLUG_HOME/init.zsh"
-
-  zplug "mafredri/zsh-async", from:github
-  zplug "sindresorhus/pure", from:github, use:pure.zsh, as:theme
 
   # Only load syntax highlighting/autosuggestions via zplug if oh-my-zsh plugin is inactive
   if ! [[ " ${plugins[*]} " == *" zsh-syntax-highlighting "* ]]; then
@@ -142,7 +183,7 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 
 
 # bun completions
-[ -s "/Users/colm/.bun/_bun" ] && source "/Users/colm/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 
 
@@ -173,14 +214,17 @@ setopt CORRECT
 setopt CORRECT_ALL
 
 # Extra completions (Homebrew)
-if [ -d "$(brew --prefix)/share/zsh-completions" ]; then
-  fpath+=("$(brew --prefix)/share/zsh-completions")
+if [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/share/zsh-completions" ]; then
+  fpath+=("$HOMEBREW_PREFIX/share/zsh-completions")
 fi
 
 ### END: enhanced autocomplete setup
 
 
-autoload -U promptinit; promptinit; prompt pure  # Pure handled via zplug
+# Prompt setup: Starship
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
 source <(fzf --zsh)
 # Use fd for faster file listings in fzf (requires fd to be installed)
 export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix"

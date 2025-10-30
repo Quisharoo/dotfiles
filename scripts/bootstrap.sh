@@ -105,6 +105,7 @@ fi
 ensure_prereqs
 
 CURSOR_TARGET="${CURSOR_USER_DIR:-$HOME_DIR/Library/Application Support/Cursor/User}"
+VSCODE_TARGET="${VSCODE_USER_DIR:-$HOME_DIR/Library/Application Support/Code/User}"
 
 # Symlink everything in home/ to $HOME
 info "Symlinking home/ -> $HOME_DIR"
@@ -112,6 +113,10 @@ for path in "$DOTFILES_DIR"/home/.* "$DOTFILES_DIR"/home/*; do
   # skip current/parent
   base=$(basename "$path")
   if [ "$base" = "." ] || [ "$base" = ".." ]; then
+    continue
+  fi
+  # skip directories handled specially later
+  if [ "$base" = ".config" ] || [ "$base" = ".claude" ]; then
     continue
   fi
   src="$path"
@@ -155,33 +160,78 @@ if [ -d "$DOTFILES_DIR/prefs/cursor/User" ]; then
   done
 fi
 
+# Link VSCode prefs
+if [ -d "$DOTFILES_DIR/prefs/vscode/User" ]; then
+  info "Linking prefs/vscode/User -> $VSCODE_TARGET"
+  maybe_run mkdir -p "$VSCODE_TARGET"
+  for f in "$DOTFILES_DIR"/prefs/vscode/User/*; do
+    [ -e "$f" ] || continue
+    name=$(basename "$f")
+    src="$f"
+    dst="$VSCODE_TARGET/$name"
+    link_file "$src" "$dst"
+  done
+fi
+
+# Generate and link Claude settings from template
+if [ -f "$DOTFILES_DIR/prefs/claude/settings.json.template" ]; then
+  info "Generating Claude settings from template..."
+  if [ -L "$HOME_DIR/.claude" ] && [ "$(readlink "$HOME_DIR/.claude")" = "$DOTFILES_DIR/home/.claude" ]; then
+    info "Removing legacy .claude symlink into repository"
+    maybe_run rm "$HOME_DIR/.claude"
+  fi
+  maybe_run mkdir -p "$HOME_DIR/.claude"
+
+  # Generate settings.json from template with actual paths
+  CLAUDE_SETTINGS="$HOME_DIR/.claude/settings.json"
+  if [ "$DRY_RUN" = true ]; then
+    info "[dry-run] Would generate $CLAUDE_SETTINGS from template"
+  else
+    sed -e "s|{{HOME}}|$HOME_DIR|g" \
+        -e "s|{{DOTFILES_DIR}}|$DOTFILES_DIR|g" \
+        "$DOTFILES_DIR/prefs/claude/settings.json.template" > "$CLAUDE_SETTINGS"
+    info "Generated: $CLAUDE_SETTINGS"
+  fi
+fi
+
 # Inform about iTerm2 preferences location
 if [ -d "$DOTFILES_DIR/prefs/iterm2" ]; then
   info "iTerm2 prefs available in: $DOTFILES_DIR/prefs/iterm2"
   info "To load them, open iTerm2 > Preferences > General > Preferences and set 'Load preferences from a custom folder' to: $DOTFILES_DIR/prefs/iterm2"
 fi
 
-# Offer to install Homebrew bundle
+# Auto-install Homebrew bundle
 BUNDLE_FILE="$DOTFILES_DIR/brew/Brewfile"
 if command -v brew >/dev/null 2>&1 && [ -f "$BUNDLE_FILE" ]; then
   if [ "$DRY_RUN" = true ]; then
     info "Dry run: skipping brew bundle (brew bundle --file=\"$BUNDLE_FILE\")"
-  elif [ -t 0 ]; then
-    printf "Run 'brew bundle --file=%s'? [y/N] " "$BUNDLE_FILE"
-    read -r reply
-    if [[ "$reply" =~ ^[Yy]$ ]]; then
-      brew bundle --file="$BUNDLE_FILE"
-    else
-      info "Skipped brew bundle."
-    fi
   else
-    warn "Non-interactive session detected; skipping brew bundle."
+    info "Installing Homebrew packages from Brewfile..."
+    brew bundle --file="$BUNDLE_FILE" || warn "Some brew packages failed to install, continuing anyway..."
+  fi
+fi
+
+# Auto-install oh-my-zsh if missing
+if [ ! -d "$HOME_DIR/.oh-my-zsh" ]; then
+  if [ "$DRY_RUN" = true ]; then
+    info "Dry run: would install oh-my-zsh"
+  else
+    info "Installing oh-my-zsh..."
+    KEEP_ZSHRC=yes RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || warn "oh-my-zsh installation failed, continuing anyway..."
+  fi
+fi
+
+# zplug should be installed via Brewfile, but verify
+if command -v brew >/dev/null 2>&1; then
+  ZPLUG_HOME="$(brew --prefix)/opt/zplug"
+  if [ ! -d "$ZPLUG_HOME" ]; then
+    info "zplug not found. It should be installed via 'brew bundle' above."
   fi
 fi
 
 info "Bootstrap complete."
 # Configure global .gitignore on first run
 if ! git config --global --get core.excludesfile >/dev/null; then
-  maybe_run cp -n "$DOTFILES_DIR/templates/gitignore_global" "$HOME/.gitignore_global"
-  maybe_run git config --global core.excludesfile "$HOME/.gitignore_global"
+  maybe_run cp -n "$DOTFILES_DIR/templates/gitignore_global" "$HOME_DIR/.gitignore_global"
+  maybe_run git config --global core.excludesfile "$HOME_DIR/.gitignore_global"
 fi

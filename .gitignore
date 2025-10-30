@@ -55,4 +55,6 @@ brew/**/Brewfile.lock.json
 repomix-output.xml
 *.itermexport
 
+# Claude runtime and generated settings
 .claude/
+prefs/claude/settings.json
