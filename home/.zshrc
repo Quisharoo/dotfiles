@@ -96,6 +96,12 @@ fi
 export ZSH="$HOME/.oh-my-zsh"
 # Keep oh-my-zsh theme disabled because Starship handles the prompt
 ZSH_THEME=""
+
+# Oh-my-zsh enhancements
+# Auto-update oh-my-zsh without prompting
+zstyle ':omz:update' mode auto
+zstyle ':omz:update' frequency 7
+
 plugins=(git colored-man-pages colorize pip python brew macos)
 
 if [ -d "$ZSH" ]; then
@@ -103,6 +109,34 @@ if [ -d "$ZSH" ]; then
 else
   echo "oh-my-zsh not found at $ZSH" >&2
 fi
+
+# --- Oh-my-zsh utility functions ---
+# Universal archive extractor
+extract() {
+  if [ -f "$1" ]; then
+    case "$1" in
+      *.tar.bz2)   tar xjf "$1"   ;;
+      *.tar.gz)    tar xzf "$1"   ;;
+      *.bz2)       bunzip2 "$1"   ;;
+      *.rar)       unrar x "$1"   ;;
+      *.gz)        gunzip "$1"    ;;
+      *.tar)       tar xf "$1"    ;;
+      *.tbz2)      tar xjf "$1"   ;;
+      *.tgz)       tar xzf "$1"   ;;
+      *.zip)       unzip "$1"     ;;
+      *.Z)         uncompress "$1";;
+      *.7z)        7z x "$1"      ;;
+      *)           echo "'$1' cannot be extracted via extract()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+# Make directory and cd into it
+mkcd() {
+  mkdir -p "$@" && cd "$_"
+}
 
 # --- zplug (for extra plugins) ---
 if [ -n "$HOMEBREW_PREFIX" ]; then

@@ -52,5 +52,6 @@
   "github.copilot.chat.responsesApiReasoningEffort": "medium",
   "chat.agent.maxRequests": 50,
   "diffEditor.experimental.showMoves": true,
-  "diffEditor.renderSideBySide": false
+  "diffEditor.renderSideBySide": false,
+  "claudeCode.selectedModel": "haiku"
 }
