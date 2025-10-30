@@ -2,7 +2,7 @@
   "tabnine.experimentalAutoImports": true,
   "editor.inlineSuggest.enabled": true,
   "chatgpt.openOnStartup": true,
-  "security.workspace.trust.untrustedFiles": "prompt",
+  "security.workspace.trust.untrustedFiles": "open",
   "terminal.integrated.sendKeybindingsToShell": true,
   "terminal.integrated.fontFamily": "FiraCode Nerd Font Mono",
   "terminal.integrated.fontSize": 13,
