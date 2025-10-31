@@ -52,6 +52,8 @@ fi
 export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 export PATH="$HOME/.npm-global/bin:$PATH"
 
+# PostgreSQL client tools
+[ -d "/opt/homebrew/opt/postgresql@17/bin" ] && export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
 
 # Editor environment
 ## make code CLI path portable (prefer system which, fallback to existing path)
@@ -65,7 +67,7 @@ else
   code_cmd="/usr/local/bin/code"
 fi
 
-export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+[ -d "/Applications/Docker.app" ] && export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
 
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
@@ -137,7 +139,6 @@ extract() {
 mkcd() {
   mkdir -p "$@" && cd "$_"
 }
-
 # --- zplug (for extra plugins) ---
 if [ -n "$HOMEBREW_PREFIX" ]; then
   export ZPLUG_HOME="$HOMEBREW_PREFIX/opt/zplug"
@@ -225,6 +226,10 @@ fi
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
-source <(fzf --zsh)
-# Use fd for faster file listings in fzf (requires fd to be installed)
-export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix"
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+  # Use fd for faster file listings in fzf (requires fd to be installed)
+  if command -v fd >/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND="fd --type f --strip-cwd-prefix"
+  fi
+fi
