@@ -53,7 +53,7 @@ export NPM_CONFIG_PREFIX="$HOME/.npm-global"
 export PATH="$HOME/.npm-global/bin:$PATH"
 
 # PostgreSQL client tools
-export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
+[ -d "/opt/homebrew/opt/postgresql@17/bin" ] && export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
 
 # Editor environment
 ## make code CLI path portable (prefer system which, fallback to existing path)
