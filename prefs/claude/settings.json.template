@@ -68,11 +68,16 @@
     ]
   },
   "edit": {
-    "allow": ["./**"],
-    "deny": ["../**", "/**", "~/**", ".git/**", "node_modules/**", "dist/**", "build/**"]
+    "allow": [
+      "./**",
+      "{{HOME}}/Library/Application Support/Code/User/**",
+      "{{DOTFILES_DIR}}/**"
+    ],
+    "deny": [".git/**", "node_modules/**", "dist/**", "build/**"]
   },
   "read": {
-    "deny": ["/**", "~/**"]
+    "allow": ["**"],
+    "deny": []
   },
   "webfetch": {
     "allow": [
