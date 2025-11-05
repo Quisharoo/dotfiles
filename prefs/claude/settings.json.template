@@ -47,7 +47,15 @@
       "Edit({{DOTFILES_DIR}}/home/.zshrc)",
       "Write({{DOTFILES_DIR}}/home/.zshrc)",
       "Read({{DOTFILES_DIR}}/home/.zshrc)",
-      "Bash(source ~/.zshrc)"
+      "Bash(source ~/.zshrc)",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "mcp__chrome-devtools__*",
+      "mcp__github-mcp__*",
+      "mcp__playwright-mcp__*"
     ],
     "ask": [
       "Bash(git push:*)",

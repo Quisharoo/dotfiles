@@ -18,7 +18,7 @@
   "chat.tools.read.autoApprove": true,
   "chat.tools.webFetch.autoApprove": true,
   "explorer.confirmDelete": false,
-  "explorer.confirmDragAndDrop": true,
+  "explorer.confirmDragAndDrop": false,
   "stripe.enableIntegrationGuides": true,
   "github.copilot.chat.alternateGptPrompt.enabled": true,
   "github.copilot.chat.codesearch.enabled": true,
