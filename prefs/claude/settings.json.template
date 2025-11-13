@@ -39,7 +39,7 @@
       "Bash(dirname:*)",
       "Bash(basename:*)",
       "Bash(./*:*)",
-      "Bash(gh:*)",
+      "Bash(gh :*)",
       "Bash(go list -m all | grep clipboard:*)",
       "Edit({{HOME}}/.zshrc)",
       "Write({{HOME}}/.zshrc)",
@@ -47,7 +47,15 @@
       "Edit({{DOTFILES_DIR}}/home/.zshrc)",
       "Write({{DOTFILES_DIR}}/home/.zshrc)",
       "Read({{DOTFILES_DIR}}/home/.zshrc)",
-      "Bash(source ~/.zshrc)"
+      "Bash(source ~/.zshrc)",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "mcp__chrome-devtools__*",
+      "mcp__github-mcp__*",
+      "mcp__playwright-mcp__*"
     ],
     "ask": [
       "Bash(git push:*)",
@@ -68,11 +76,16 @@
     ]
   },
   "edit": {
-    "allow": ["./**"],
-    "deny": ["../**", "/**", "~/**", ".git/**", "node_modules/**", "dist/**", "build/**"]
+    "allow": [
+      "./**",
+      "{{HOME}}/Library/Application Support/Code/User/**",
+      "{{DOTFILES_DIR}}/**"
+    ],
+    "deny": [".git/**", "node_modules/**", "dist/**", "build/**"]
   },
   "read": {
-    "deny": ["/**", "~/**"]
+    "allow": ["**"],
+    "deny": []
   },
   "webfetch": {
     "allow": [
